@@ -219,7 +219,13 @@ export default defineComponent({
       eventBus.on('compact', compactHandler);
     });
 
-    const resizableAndNotStatic = computed(() => resizable.value && !props.static);
+    const resizableAndNotStatic = computed(() => {
+      // 固定模式，不允许缩放
+      if (props.static) {
+        return false;
+      }
+      return  resizable.value;
+    });
 
     // 镜像反转
     const isMirrored = inject(isMirroredKey, ref(false));
