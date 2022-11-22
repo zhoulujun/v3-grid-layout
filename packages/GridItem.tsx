@@ -146,7 +146,14 @@ export default defineComponent({
          */
     const isResizing = ref(false);
     // 是否可缩放
-    const resizable = toRef(props, 'isResizable').value ? toRef(props, 'isResizable') : inject(isResizableKey, ref(true));
+    const resizable = computed(() => {
+      // 子元素可缩放，再看父容器是否可缩放
+      if (props.isResizable) {
+        return inject(isResizableKey, ref(true));
+      }
+      // 子元素不可缩放，就不可以缩放
+      return  false;
+    });
     nextTick(() => {
       watch(
         resizable,
