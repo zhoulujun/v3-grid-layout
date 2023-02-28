@@ -8,6 +8,14 @@ export default defineConfig({
     plugins: [dts(), vue(), vueJsx()],
     build: {
         outDir: 'dist',
+        minify: 'terser',
+        terserOptions: {
+            compress: {
+                //生产环境时移除console
+                drop_console: false,
+                drop_debugger: false,
+            },
+        },
         lib: {
             entry: resolve(__dirname, '../packages/index.ts'),
             name: 'v3-grid-layout'

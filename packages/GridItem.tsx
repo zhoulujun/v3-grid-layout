@@ -1,4 +1,15 @@
-import { defineComponent, computed, inject, nextTick, onMounted, reactive, ref, toRef, watch } from 'vue';
+import {
+  defineComponent,
+  computed,
+  inject,
+  nextTick,
+  onMounted,
+  reactive,
+  ref,
+  toRef,
+  watch,
+  onBeforeUnmount,
+} from 'vue';
 import type { Interactable } from '@interactjs/core/Interactable';
 import interact from 'interactjs';
 import {
@@ -21,6 +32,7 @@ import { createCoreData, getControlPosition } from './helpers/draggable-utils';
 import { Emitter, EventType } from 'mitt';
 import './GridItem.css';
 import { propsGridItem as props } from './props';
+
 export default defineComponent({
   name: 'GridItem',
   props,
@@ -54,13 +66,14 @@ export default defineComponent({
     const lastH = ref(0);
     const resizing = reactive({ data: { width: 0, height: 0 } });
     const dragging = reactive({ data: { top: 0, left: 0 } });
-
+    const loading = ref(true);
     const itemContainer = ref<HTMLElement | null>(null);
     const handle = ref<HTMLElement | null>(null);
     let interactObj: Interactable;
+
     /**
-         * 拖拽设置函数
-         */
+     * 拖拽设置函数
+     */
     function tryMakeDraggable() {
       interactObj = interactObj ?? interact(itemContainer.value as HTMLElement);
       if (draggable.value && !props.static) {
@@ -82,13 +95,14 @@ export default defineComponent({
         });
       }
     }
+
     /**
-         * 是否正在拖拽状态
-         */
+     * 是否正在拖拽状态
+     */
     const isDragging = ref(false);
     /**
-         * 是否可拖拽
-         */
+     * 是否可拖拽
+     */
     const draggable = toRef(props, 'isDraggable').value ? toRef(props, 'isDraggable') : inject(isDraggableKey, ref(true));
     nextTick(() => {
       watch(
@@ -101,8 +115,8 @@ export default defineComponent({
     });
 
     /**
-         * 缩放设置函数
-         */
+     * 缩放设置函数
+     */
     function tryMakeResizable() {
       interactObj = interactObj ?? interact(itemContainer.value as HTMLElement);
       if (draggable.value && !props.static) {
@@ -141,9 +155,10 @@ export default defineComponent({
         });
       }
     }
+
     /**
-         * 是否正在缩放状态
-         */
+     * 是否正在缩放状态
+     */
     const isResizing = ref(false);
     // 是否可缩放
     const resizable = computed(() => {
@@ -152,7 +167,7 @@ export default defineComponent({
         return inject(isResizableKey, ref(true));
       }
       // 子元素不可缩放，就不可以缩放
-      return  false;
+      return false;
     });
     nextTick(() => {
       watch(
@@ -224,6 +239,15 @@ export default defineComponent({
         compact();
       };
       eventBus.on('compact', compactHandler);
+      // TODO 零时性修复重绘问题
+      let timer = setTimeout(() => {
+        loading.value = false;
+        clearTimeout(timer);
+        timer = null;
+      });
+      onBeforeUnmount(() => {
+        eventBus.off('compact', compactHandler);
+      });
     });
 
     const resizableAndNotStatic = computed(() => {
@@ -231,28 +255,12 @@ export default defineComponent({
       if (props.static) {
         return false;
       }
-      return  resizable.value;
+      return resizable.value;
     });
 
     // 镜像反转
     const isMirrored = inject(isMirroredKey, ref(false));
     const renderRtl = computed(() => (isMirrored.value ? !rtl.value : rtl.value));
-    watch(
-      () => renderRtl.value,
-      () => {
-        tryMakeResizable();
-        createStyle();
-      },
-    );
-    watch([containerWidth, cols], () => {
-      tryMakeResizable();
-      createStyle();
-      emitContainerResized();
-    });
-
-    watch([() => props.minH, () => props.maxH, () => props.minW, () => props.maxW], () => {
-      tryMakeResizable();
-    });
     const isAndroid = computed(() => navigator.userAgent.toLowerCase().indexOf('android') !== -1);
     const draggableOrResizableAndNotStatic = computed(() => (draggable.value || resizable.value) && !props.static);
     const classObj = computed(() => ({
@@ -358,7 +366,7 @@ export default defineComponent({
           break;
         }
         default:
-                // ...
+        // ...
       }
       // Get new XY
       let pos = null;
@@ -412,13 +420,14 @@ export default defineComponent({
       }
       return out;
     }
+
     /**
-         * Given a height and width in pixel values, calculate grid units.
-         * @param  {Number} height Height in pixels.
-         * @param  {Number} width  Width in pixels.
-         * @param  {Boolean} autoSizeFlag  function autoSize identifier.
-         * @return {Object} w, h as grid units.
-         */
+     * Given a height and width in pixel values, calculate grid units.
+     * @param  {Number} height Height in pixels.
+     * @param  {Number} width  Width in pixels.
+     * @param  {Boolean} autoSizeFlag  function autoSize identifier.
+     * @return {Object} w, h as grid units.
+     */
     const calcWH = (height: number, width: number, autoSizeFlag = false) => {
       const colWidth = calcColWidth();
       // width = colWidth * w - (margin * (w - 1))
@@ -475,7 +484,7 @@ export default defineComponent({
           break;
         }
         default:
-                // ...
+        // ...
       }
       // Get new WH
       pos = calcWH(newSize.height, newSize.width);
@@ -532,6 +541,22 @@ export default defineComponent({
       emit('container-resized', props.i, props.h, props.w, styleProps.height, styleProps.width);
     };
     watch(
+      () => renderRtl.value,
+      () => {
+        tryMakeResizable();
+        createStyle();
+      },
+    );
+    watch([containerWidth, cols], () => {
+      tryMakeResizable();
+      createStyle();
+      emitContainerResized();
+    });
+
+    watch([() => props.minH, () => props.maxH, () => props.minW, () => props.maxW], () => {
+      tryMakeResizable();
+    });
+    watch(
       rowHeight,
       () => {
         createStyle();
@@ -572,6 +597,7 @@ export default defineComponent({
       },
       // { immediate: true }
     );
+
     return {
       classObj,
       style,
@@ -580,20 +606,29 @@ export default defineComponent({
       itemContainer,
       handle,
       dragging,
+      loading,
       calcXY,
     };
   },
   render() {
+    const renderContent = () => {
+      if (this.loading) {
+        if (typeof this.$slots.lading === 'function') {
+          return  this.$slots.lading();
+        }
+      }
+      return this.$slots.default?.();
+    };
     return (
-            <div
-                ref="itemContainer"
-                class={this.classObj}
-                style={this.style.data}>
-                {this.$slots.default?.()}
-                {this.resizableAndNotStatic ? (
-                    <span ref="handle" class={this.resizableHandleClass}></span>
-                ) : ''}
-            </div>
+      <div
+        ref="itemContainer"
+        class={this.classObj}
+        style={this.style.data}>
+        {renderContent()}
+        {this.resizableAndNotStatic ? (
+          <span ref="handle" class={this.resizableHandleClass}></span>
+        ) : ''}
+      </div>
     );
   },
 });
