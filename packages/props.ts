@@ -1,5 +1,5 @@
-import { PropType } from 'vue';
-import { Layout } from './helpers/utils';
+import { PropType } from 'vue'
+import { Layout } from './helpers/utils'
 
 export const propsGridLayout = {
   /**
@@ -7,84 +7,84 @@ export const propsGridLayout = {
    */
   autoSize: {
     type: Boolean,
-    default: true,
+    default: true
   },
   /**
    * 定义栅格系统的列数
    */
   colNum: {
     type: Number,
-    default: 12,
+    default: 12
   },
   /**
    * 栅格每行的高度，单位像素
    */
   rowHeight: {
     type: Number,
-    default: 10,
+    default: 10
   },
   /**
    * 最大行数
    */
   maxRows: {
     type: Number,
-    default: Infinity,
+    default: Infinity
   },
   /**
    * 定义栅格中的元素边距。值必须是包含两个 Number的数组，数组中第一个元素表示水平边距，第二个表示垂直边距，单位为像素。
    */
   margin: {
     type: Array as PropType<number[]>,
-    default: () => [10, 10],
+    default: () => [10, 10]
   },
   /**
    * 栅格中的元素是否可拖拽
    */
   isDraggable: {
     type: Boolean,
-    default: true,
+    default: true
   },
   /**
    * 栅格中的元素是否可调整大小。
    */
   isResizable: {
     type: Boolean,
-    default: true,
+    default: true
   },
   /**
    * 栅格中的元素是否可镜像反转。
    */
   isMirrored: {
     type: Boolean,
-    default: false,
+    default: false
   },
   /**
    * 是否使用CSS属性 transition-property: transform;
    */
   useCssTransforms: {
     type: Boolean,
-    default: true,
+    default: true
   },
   /**
    * 布局是否垂直压缩。
    */
   verticalCompact: {
     type: Boolean,
-    default: true,
+    default: true
   },
   /**
    * 栅格的初始布局。值必须为 Array，其数据项为 Object。 每条数据项必须有 i, x, y, w 和 h 属性。
    */
   layout: {
     type: Array as PropType<Layout>,
-    required: true,
+    required: true
   },
   /**
    * 布局是否为响应式。
    */
   responsive: {
     type: Boolean,
-    default: false,
+    default: false
   },
   /**
    * 如果 responsive 设置为 true，该配置将作为栅格中每个断点的初始布局。
@@ -94,90 +94,91 @@ export const propsGridLayout = {
    */
   responsiveLayouts: {
     type: Object,
-    default: () => ({}),
+    default: () => ({})
   },
   /**
    * 为响应式布局设置断点。
    */
   breakpoints: {
     type: Object,
-    default: () => ({ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }),
+    default: () => ({ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 })
   },
   /**
    * 设置每个断点对应的列数。
    */
   responsiveCols: {
     type: Object,
-    default: () => ({ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }),
+    default: () => ({ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 })
   },
   /**
    * 防止碰撞属性，值设置为 true 时，栅格只能拖动至空白处。
    */
   preventCollision: {
     type: Boolean,
-    default: false,
+    default: false
   },
-};
+  useSystemBus: Boolean
+}
 
 export const propsGridItem = {
   isDraggable: {
     type: Boolean,
-    default: false,
+    default: false
   },
   isResizable: {
     type: Boolean,
-    default: false,
+    default: false
   },
   static: {
     type: Boolean,
-    default: false,
+    default: false
   },
   minH: {
     type: Number,
-    default: 1,
+    default: 1
   },
   minW: {
     type: Number,
-    default: 1,
+    default: 1
   },
   maxH: {
     type: Number,
-    default: Infinity,
+    default: Infinity
   },
   maxW: {
     type: Number,
-    default: Infinity,
+    default: Infinity
   },
   x: {
     type: Number,
-    required: true,
+    required: true
   },
   y: {
     type: Number,
-    required: true,
+    required: true
   },
   w: {
     type: Number,
-    required: true,
+    required: true
   },
   h: {
     type: Number,
-    required: true,
+    required: true
   },
   i: {
     type: [Number, String],
-    required: true,
+    required: true
   },
   dragIgnoreFrom: {
     type: String,
-    default: 'a, button',
+    default: 'a, button'
   },
   dragAllowFrom: {
     type: String,
-    default: '',
+    default: ''
   },
   resizeIgnoreFrom: {
     type: String,
-    default: 'a, button',
-  },
-};
+    default: 'a, button'
+  }
+}

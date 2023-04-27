@@ -230,16 +230,6 @@ export default defineComponent({
         height: containerHeight(),
       };
     };
-    // watch(width, (newVal, oldVal) => {
-    //   nextTick(() => {
-    //     if (oldVal === null) {
-    //       nextTick(() => {
-    //         emit('layout-ready', props.layout)
-    //       })
-    //     }
-    //     updateHeight()
-    //   })
-    // })
     const findDifference = (layout: Layout, originalLayout: Layout) => {
       // Find values that are in result1 but not in result2
       const uniqueResultOne = layout.filter(obj => !originalLayout.some(obj2 => obj.i === obj2.i));
