@@ -12,6 +12,7 @@ import {
 } from 'vue'
 
 import {
+  bottom,
   cloneLayout,
   compact,
   getAllCollisions,
@@ -80,9 +81,12 @@ export default defineComponent({
     useResizeObserver(layoutContainer, (entries) => {
       const entry = entries[0]
       width.value = entry.contentRect.width
+      // // 容器大小变化，更新容器高度
+      // updateHeight()
     })
     provide(containerWidthKey, width)
 
+    const mergedStyle = ref({})
     const isDragging = ref(false)
     const placeholder = reactive<{
       x: number
@@ -101,6 +105,27 @@ export default defineComponent({
     let lastBreakpoint: string|null = null // store last active breakpoint
     let originalLayout: Layout // store original Layout
 
+    const containerHeight = () => {
+      if (!props.autoSize) return
+      const buffer = 15 // 最下面的元素无法操作，留一点缓冲
+      return `${bottom(props.layout) * (props.rowHeight + props.margin[1]) + props.margin[1] + buffer}px`
+    }
+
+    const updateHeight = () => {
+      mergedStyle.value = {
+        height: containerHeight()
+      }
+    }
+    // watch(width, (newVal, oldVal) => {
+    //   nextTick(() => {
+    //     if (oldVal === null) {
+    //       nextTick(() => {
+    //         emit('layout-ready', props.layout)
+    //       })
+    //     }
+    //     updateHeight()
+    //   })
+    // })
     const findDifference = (layout: Layout, originalLayout: Layout) => {
       // Find values that are in result1 but not in result2
       const uniqueResultOne = layout.filter(obj => !originalLayout.some(obj2 => obj.i === obj2.i))
@@ -128,6 +153,7 @@ export default defineComponent({
           initResponsiveFeatures()
         }
         compact(props.layout, props.verticalCompact)
+        updateHeight()
         emit('layout-updated', props.layout)
       }
     }
@@ -213,6 +239,8 @@ export default defineComponent({
         nextTick(() => {
           isDragging.value = true
         })
+        // this.$broadcast("updateWidth", this.width);
+        // eventBus.emit('updateWidth', width.value)
       } else {
         nextTick(() => {
           isDragging.value = false
@@ -221,18 +249,19 @@ export default defineComponent({
       if (props.responsive) responsiveGridLayout()
       compact(props.layout, props.verticalCompact)
       eventBus.emit('compact')
+      updateHeight()
       if (eventName === 'resizeend') emit('layout-updated', props.layout)
     }
 
     // Accessible references of functions for removing in beforeDestroy
     function resizeEventHandler({
-                                  eventType,
-                                  i,
-                                  x,
-                                  y,
-                                  h,
-                                  w
-                                }: {
+      eventType,
+      i,
+      x,
+      y,
+      h,
+      w
+    }: {
       eventType: string
       i: string|number
       x: number
@@ -259,6 +288,7 @@ export default defineComponent({
         nextTick(() => {
           isDragging.value = true
         })
+        // eventBus.emit('updateWidth', width.value)
       } else {
         nextTick(() => {
           isDragging.value = false
@@ -269,16 +299,17 @@ export default defineComponent({
       compact(props.layout, props.verticalCompact)
       // needed because vue can't detect changes on array element properties
       eventBus.emit('compact')
+      updateHeight()
       if (eventName === 'dragend') emit('layout-updated', props.layout)
     }
     const dragEventHandler = ({
-                                eventType,
-                                i,
-                                x,
-                                y,
-                                h,
-                                w
-                              }: {
+      eventType,
+      i,
+      x,
+      y,
+      h,
+      w
+    }: {
       eventType: string
       i: string|number
       x: number
@@ -316,10 +347,12 @@ export default defineComponent({
           // addWindowEventListener('resize', onWindowResize)
           compact(props.layout, props.verticalCompact)
           emit('layout-updated', props.layout)
+          updateHeight()
         })
       })
     })
     return {
+      mergedStyle,
       isDragging,
       placeholder,
       layoutContainer,
@@ -328,7 +361,7 @@ export default defineComponent({
   },
   render() {
     return (
-      <div ref='layoutContainer' class='vue-grid-layout'>
+      <div ref='layoutContainer' class='vue-grid-layout' style={this.mergedStyle}>
         {this.$slots.default?.()}
         <GridItem
           v-show={this.isDragging}
