@@ -179,77 +179,7 @@ export default defineComponent({
       )
     })
 
-    // static 状态重置缩放和拖拽
-    watch(
-      () => props.static,
-      () => {
-        tryMakeDraggable()
-        tryMakeResizable()
-      }
-    )
 
-    const createStyle = () => {
-      if (props.x + props.w > cols.value) {
-        innerX.value = 0
-        innerW.value = props.w > cols.value ? cols.value : props.w
-      } else {
-        innerX.value = props.x
-        innerW.value = props.w
-      }
-      const pos = calcPosition(innerX.value, innerY.value, innerW.value, innerH.value)
-      if (isDragging.value) {
-        pos.top = dragging.data.top
-        // Add rtl support
-        if (renderRtl.value) {
-          pos.right = dragging.data.left
-        } else {
-          pos.left = dragging.data.left
-        }
-      }
-      if (isResizing.value) {
-        pos.width = resizing.data.width
-        pos.height = resizing.data.height
-      }
-      let _style = null
-      // CSS Transforms support (default)
-      if (useCssTransforms) {
-        // Add rtl support
-        if (renderRtl.value) {
-          _style = setTransformRtl(pos.top, pos.right as number, pos.width, pos.height)
-        } else {
-          _style = setTransform(pos.top, pos.left as number, pos.width, pos.height)
-        }
-      } else {
-        // top,left (slow)
-        // Add rtl support
-        if (renderRtl.value) {
-          _style = setTopRight(pos.top, pos.right as number, pos.width, pos.height)
-        } else {
-          _style = setTopLeft(pos.top, pos.left as number, pos.width, pos.height)
-        }
-      }
-      style.data = _style
-    }
-    createStyle()
-    onMounted(() => {
-      createStyle()
-      const compact = () => {
-        createStyle()
-      }
-      const compactHandler = () => {
-        compact()
-      }
-      eventBus.on('compact', compactHandler)
-      // TODO 零时性修复重绘问题
-      let timer = setTimeout(() => {
-        loading.value = false
-        clearTimeout(timer)
-        timer = null
-      }, 0)
-      onBeforeUnmount(() => {
-        eventBus.off('compact', compactHandler)
-      })
-    })
 
     const resizableAndNotStatic = computed(() => {
       // 固定模式，不允许缩放
@@ -394,7 +324,7 @@ export default defineComponent({
       })
     }
 
-    function calcPosition(x: number, y: number, w: number, h: number, Rtl = renderRtl.value) {
+    function calcPosition(x: number, y: number, w: number, h: number, Rtl = renderRtl?.value) {
       const colWidth = calcColWidth()
       // add rtl support
       let out
@@ -541,6 +471,78 @@ export default defineComponent({
       }
       emit('container-resized', props.i, props.h, props.w, styleProps.height, styleProps.width)
     }
+
+    // static 状态重置缩放和拖拽
+    watch(
+      () => props.static,
+      () => {
+        tryMakeDraggable()
+        tryMakeResizable()
+      }
+    )
+
+    const createStyle = () => {
+      if (props.x + props.w > cols.value) {
+        innerX.value = 0
+        innerW.value = props.w > cols.value ? cols.value : props.w
+      } else {
+        innerX.value = props.x
+        innerW.value = props.w
+      }
+      const pos = calcPosition(innerX.value, innerY.value, innerW.value, innerH?.value)
+      if (isDragging.value) {
+        pos.top = dragging.data.top
+        // Add rtl support
+        if (renderRtl.value) {
+          pos.right = dragging.data.left
+        } else {
+          pos.left = dragging.data.left
+        }
+      }
+      if (isResizing.value) {
+        pos.width = resizing.data.width
+        pos.height = resizing.data.height
+      }
+      let _style = null
+      // CSS Transforms support (default)
+      if (useCssTransforms) {
+        // Add rtl support
+        if (renderRtl.value) {
+          _style = setTransformRtl(pos.top, pos.right as number, pos.width, pos.height)
+        } else {
+          _style = setTransform(pos.top, pos.left as number, pos.width, pos.height)
+        }
+      } else {
+        // top,left (slow)
+        // Add rtl support
+        if (renderRtl.value) {
+          _style = setTopRight(pos.top, pos.right as number, pos.width, pos.height)
+        } else {
+          _style = setTopLeft(pos.top, pos.left as number, pos.width, pos.height)
+        }
+      }
+      style.data = _style
+    }
+    createStyle()
+    onMounted(() => {
+      createStyle()
+      const compact = () => {
+        createStyle()
+      }
+      const compactHandler = () => {
+        compact()
+      }
+      eventBus.on('compact', compactHandler)
+      // TODO 零时性修复重绘问题
+      let timer = setTimeout(() => {
+        loading.value = false
+        clearTimeout(timer)
+        timer = null
+      }, 0)
+      onBeforeUnmount(() => {
+        eventBus.off('compact', compactHandler)
+      })
+    })
     watch(
       () => renderRtl.value,
       () => {
