@@ -151,18 +151,22 @@ export const propsGridItem = {
   },
   x: {
     type: Number,
+    default: 0,
     required: true
   },
   y: {
     type: Number,
+    default: 0,
     required: true
   },
   w: {
     type: Number,
+    default: 0,
     required: true
   },
   h: {
     type: Number,
+    default: 0,
     required: true
   },
   i: {

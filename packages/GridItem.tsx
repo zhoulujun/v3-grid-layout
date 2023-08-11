@@ -1,32 +1,32 @@
 import {
-  defineComponent,
   computed,
+  defineComponent,
   inject,
   nextTick,
+  onBeforeUnmount,
   onMounted,
   reactive,
   ref,
   toRef,
-  watch,
-  onBeforeUnmount
+  watch
 } from 'vue'
 import type { Interactable } from '@interactjs/core/Interactable'
 import interact from 'interactjs'
 import {
+  colNumKey,
+  containerWidthKey,
+  eventBusKey,
+  isDraggableKey,
+  isMirroredKey,
+  isResizableKey,
+  marginKey,
+  maxRowsKey,
+  rowHeightKey,
   setTopLeft,
   setTopRight,
   setTransform,
   setTransformRtl,
-  eventBusKey,
-  isDraggableKey,
-  isResizableKey,
-  rowHeightKey,
-  maxRowsKey,
-  colNumKey,
-  containerWidthKey,
-  marginKey,
-  useCssTransformsKey,
-  isMirroredKey
+  useCssTransformsKey
 } from './helpers/utils'
 import { createCoreData, getControlPosition } from './helpers/draggable-utils'
 import { Emitter, EventType } from 'mitt'
@@ -59,7 +59,7 @@ export default defineComponent({
     const innerH = ref(props.h)
 
     const rtl = ref(false)
-    const style = reactive({ data: { width: '0px', height: '0px' } })
+    const style = reactive({ data: { width: `${props.w}px`, height: `${props.h}px` } })
     const lastX = ref(0)
     const lastY = ref(0)
     const lastW = ref(0)
@@ -230,6 +230,7 @@ export default defineComponent({
       }
       style.data = _style
     }
+    createStyle()
     onMounted(() => {
       createStyle()
       const compact = () => {
@@ -244,7 +245,7 @@ export default defineComponent({
         loading.value = false
         clearTimeout(timer)
         timer = null
-      })
+      }, 0)
       onBeforeUnmount(() => {
         eventBus.off('compact', compactHandler)
       })
@@ -616,6 +617,7 @@ export default defineComponent({
         if (typeof this.$slots.lading === 'function') {
           return this.$slots.lading()
         }
+        return null
       }
       return this.$slots.default?.()
     }
