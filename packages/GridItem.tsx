@@ -616,8 +616,8 @@ export default defineComponent({
   render() {
     const renderContent = () => {
       if (this.loading) {
-        if (typeof this.$slots.lading === 'function') {
-          return this.$slots.lading()
+        if (typeof this.$slots.loading === 'function') {
+          return this.$slots.loading()
         }
         return null
       }
