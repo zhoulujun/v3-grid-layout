@@ -538,7 +538,7 @@ export default defineComponent({
         loading.value = false
         clearTimeout(timer)
         timer = null
-      }, 0)
+      }, props.delay)
       onBeforeUnmount(() => {
         eventBus.off('compact', compactHandler)
       })

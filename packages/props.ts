@@ -121,6 +121,10 @@ export const propsGridLayout = {
 }
 
 export const propsGridItem = {
+  delay: {
+    type: Number,
+    default: 0
+  },
   isDraggable: {
     type: Boolean,
     default: false
