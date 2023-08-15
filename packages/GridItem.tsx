@@ -164,7 +164,7 @@ export default defineComponent({
     const resizable = computed(() => {
       // 子元素可缩放，再看父容器是否可缩放
       if (props.isResizable) {
-        return inject(isResizableKey, ref(true))
+        return inject(isResizableKey, ref(true)) || true
       }
       // 子元素不可缩放，就不可以缩放
       return false

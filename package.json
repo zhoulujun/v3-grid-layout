@@ -1,6 +1,6 @@
 {
   "name": "vue-grid-layout-next",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "private": false,
   "license": "MIT",
   "main": "dist/vue-grid-layout-next.umd.js",
@@ -25,6 +25,10 @@
     "build:lib": "vue-tsc --noEmit && vite build --config ./build/lib.config.ts",
     "storybook": "start-storybook -p 6006"
   },
+  "peerDependencies": {
+    "vue": "^3.2.26",
+    "mitt": "^3.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com/zhoulujun/v3-grid-layout.git "
@@ -34,10 +38,11 @@
     "@blueking/stylelint-config-bk": "^2.0.0",
     "@vueuse/core": "^8.1.2",
     "interactjs": "^1.10.11",
-    "mitt": "^3.0.0",
     "webpack": "^4.46.0"
   },
   "devDependencies": {
+    "mitt": "^3.0.0",
+    "vue": "^3.2.26",
     "@babel/core": "^7.18.9",
     "@babel/eslint-parser": "^7.18.9",
     "@babel/plugin-transform-runtime": "^7.18.9",
